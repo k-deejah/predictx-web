@@ -9,7 +9,6 @@ export interface WinningsCalculation {
 }
 
 export const PLATFORM_FEE = PLATFORM_FEE_PERCENTAGE;
-const FEE = PLATFORM_FEE_PERCENTAGE;
 
 export function calculateGrossPayout(
 	stakeAmount: number,
@@ -248,6 +247,7 @@ export function msUntilLock(
  * constant existed but had no consumers.
  */
 export const VOTING_WINDOW_MS = 2 * 60 * 60 * 1000;
+export const VOTING_WINDOW_HOURS = VOTING_WINDOW_MS / (60 * 60 * 1000);
 
 /**
  * Epoch ms at which voting on a poll closes: the lock instant plus the voting
@@ -265,4 +265,24 @@ export function getVotingDeadline(
 	const lock = new Date(lockISO).getTime();
 	if (Number.isNaN(lock)) return Number.NaN;
 	return lock + VOTING_WINDOW_MS;
+}
+
+export function getVotingDeadlineISO(
+	poll: { lockTime: LockTimeKey | string; lockTargetISO?: string },
+	match: { kickoff: string } | undefined,
+): string {
+	const deadline = getVotingDeadline(poll, match);
+	return Number.isNaN(deadline)
+		? ""
+		: new Date(deadline).toISOString();
+}
+
+export function isVotingOpen(
+	poll: { status?: string; lockTime: LockTimeKey | string; lockTargetISO?: string },
+	match: { kickoff: string } | undefined,
+	now: number = Date.now(),
+): boolean {
+	if (poll.status !== "voting") return false;
+	const deadline = getVotingDeadline(poll, match);
+	return !Number.isNaN(deadline) && now < deadline;
 }

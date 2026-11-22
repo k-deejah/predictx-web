@@ -224,6 +224,7 @@ function PollPreview({ form, matchLabel }: { form: FormState; matchLabel: string
         status: "active",
         lockTime: (form.lockTime as LockTime) || "kickoff",
         recentActivity: "Draft poll preview",
+        createdAt: "1970-01-01T00:00:00.000Z",
         lockTargetISO:
             form.lockTime === "custom" && form.customLockTime
                 ? form.customLockTime
@@ -248,7 +249,7 @@ function PollPreview({ form, matchLabel }: { form: FormState; matchLabel: string
 
 export function CreatePollModal({ open, onClose, preselectedMatchId }: CreatePollModalProps) {
     const { addPoll } = useMockData();
-    const { isConnected, sendTransaction, address } = useWallet();
+    const { isConnected, sendTransaction } = useWallet();
 
     const [step, setStep] = useState<number>(1);
     const [form, setForm] = useState<FormState>({

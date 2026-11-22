@@ -19,8 +19,11 @@ import { useVoting, type VoteDecision } from "@/hooks/use-voting";
 import { useWallet } from "@/hooks/use-wallet";
 import { cn, categoryLabel } from "@/lib/utils";
 import { getTeamColor } from "@/lib/team-colors";
-import { getVotingDeadlineISO, isVotingOpen } from "@/lib/calculations";
-import { VOTING_WINDOW_HOURS } from "@/lib/constants";
+import {
+  getVotingDeadlineISO,
+  isVotingOpen,
+  VOTING_WINDOW_HOURS,
+} from "@/lib/calculations";
 
 interface VotingCardProps {
     poll: Poll;
@@ -58,7 +61,7 @@ export function VotingCard({ poll, match }: VotingCardProps) {
       focusedBeforeOpenRef.current = document.activeElement as HTMLElement | null;
     }, []);
 
-    const { castVote, getVoteReward, getUnclearVotes } = useVoting();
+    const { castVote, getVoteReward } = useVoting();
     const { isConnected, connect, isConnecting } = useWallet();
 
     const rewardAmount = getVoteReward(poll.id);

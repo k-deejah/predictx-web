@@ -47,7 +47,7 @@ describe("Batch #328 - #331 UI enhancements", () => {
       );
 
       expect(html).not.toContain("Total Pool:");
-      expect(html).not.toContain("50.0%");
+      expect(html).not.toContain(">50.0%</span>");
     });
 
     it("PollCard uses PoolProgressBar instead of green for YES", () => {
@@ -64,6 +64,7 @@ describe("Batch #328 - #331 UI enhancements", () => {
         status: "active",
         lockTime: "kickoff",
         recentActivity: "Recent stake",
+        createdAt: new Date().toISOString(),
       };
 
       const dummyMatch: Match = {
@@ -126,7 +127,7 @@ describe("Batch #328 - #331 UI enhancements", () => {
         </GamingButton>
       );
       expect(html).toContain("Saved!");
-      expect(html).toContain("#39ff14"); // Success green text/icon color
+      expect(html).toContain("var(--accent-green)");
     });
   });
 

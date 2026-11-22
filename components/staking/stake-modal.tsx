@@ -22,7 +22,6 @@ import { toast } from "sonner";
 
 import { cn, categoryLabel } from "@/lib/utils";
 import {
-  calculatePotentialWinnings,
   calculatePoolPercentages,
   formatCurrency,
   formatAddress,
@@ -41,7 +40,7 @@ import {
   STELLAR_BASE_FEE,
   STELLAR_NETWORKS,
 } from "@/lib/constants";
-import type { Poll, Match, Stake } from "@/lib/mock-data";
+import type { Poll } from "@/lib/mock-data";
 import { lockTimeLabel } from "@/lib/mock-data";
 
 import { useWallet, type TransactionReceipt } from "@/hooks/use-wallet";
@@ -54,7 +53,6 @@ import {
   GamingInput,
   GlowCard,
   AnimatedCounter,
-  CountdownTimer,
 } from "@/components/shared";
 
 // ── Types ───────────────────────────────────────────────────────────────────
@@ -89,12 +87,6 @@ interface StakeModalProps {
   initialSide?: "yes" | "no";
   open: boolean;
   onClose: () => void;
-}
-
-// ── Helpers ─────────────────────────────────────────────────────────────────
-
-function generateMockLedger() {
-  return 50_000_000 + Math.floor(Math.random() * 1_000_000);
 }
 
 // ── Sub-components ──────────────────────────────────────────────────────────
@@ -201,7 +193,6 @@ function WalletConfirmPopup({
 function ProcessingOverlay() {
   const shouldReduceMotion = useReducedMotion();
   return (
-return (
     <motion.div
       role="alert"
       aria-live="polite"
@@ -273,12 +264,10 @@ return (
 /** Success overlay with particle burst */
 function SuccessOverlay({
   receipt,
-  stakeAmount,
   side,
   onClose,
 }: {
   receipt: TransactionReceipt;
-  stakeAmount: number;
   side: "yes" | "no";
   onClose: () => void;
 }) {
@@ -334,7 +323,7 @@ function SuccessOverlay({
       {/* Particle burst */}
       {Array.from({ length: 20 }).map((_, i) => {
         const angle = (i / 20) * Math.PI * 2;
-        const distance = 80 + Math.random() * 120;
+        const distance = 80 + ((i * 73 + 19) % 120);
         return (
           <motion.div
             key={i}
@@ -630,6 +619,8 @@ export function StakeModal({
 
   // ── Reset on open/close ────────────────────────────────────────────────
 
+  // This effect intentionally resets form state when the existing modal opens.
+  /* eslint-disable react-hooks/set-state-in-effect */
   useEffect(() => {
     if (open) {
       setSide(initialSide);
@@ -640,6 +631,7 @@ export function StakeModal({
       previouslyFocusedRef.current = document.activeElement as HTMLElement | null;
     }
   }, [open, initialSide]);
+  /* eslint-enable react-hooks/set-state-in-effect */
 
   // ── Restore focus on close ─────────────────────────────────────────────
   useEffect(() => {
@@ -707,10 +699,11 @@ export function StakeModal({
       toast.success(`Successfully staked ${formatCurrency(stakeAmount)} on "${poll.question}"`, {
         description: `Side: ${side.toUpperCase()} • Tx: ${formatAddress(result.receipt.hash)}`,
       });
-    } catch (err: any) {
-      setErrorMsg(err?.message ?? "Unknown error");
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : "Unknown error";
+      setErrorMsg(message);
       setTxStep("failure");
-      toast.error("Transaction failed", { description: err?.message });
+      toast.error("Transaction failed", { description: message });
     } finally {
       // Released on both paths: a failure puts the modal in the `failure` step
       // where Retry is offered, and that retry must not be swallowed by a
@@ -1372,7 +1365,6 @@ export function StakeModal({
                 <SuccessOverlay
                   key="success"
                   receipt={receipt}
-                  stakeAmount={stakeAmount}
                   side={side}
                   onClose={handleTxClose}
                 />

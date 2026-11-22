@@ -1,9 +1,10 @@
-import nextEslintConfig from "@eslint/eslintrc/dist/eslintrc.cjs";
+import nextCoreWebVitals from "eslint-config-next/core-web-vitals";
+import nextTypeScript from "eslint-config-next/typescript";
 
 /** @type {import("eslint").Linter.Config[]} */
-export default [
-  ...nextEslintConfig.defaults.nexteslint,
-  ...nextEslintConfig.defaults["next/typescript"],
+const eslintConfig = [
+  ...nextCoreWebVitals,
+  ...nextTypeScript,
   {
     rules: {
       "@typescript-eslint/no-explicit-any": "error",
@@ -13,3 +14,5 @@ export default [
     },
   },
 ];
+
+export default eslintConfig;
